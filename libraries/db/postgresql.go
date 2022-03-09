@@ -11,7 +11,7 @@ import (
 )
 
 func NewPostgresqlClient(v *viper.Viper, dbName string) (*gorm.DB, error) {
-	config := v.Sub("postgresql")
+	config := v.Sub(fmt.Sprintf("postgresql.%s", dbName))
 	dsn := fmt.Sprintf("user=%s password=%s host=%s port=%d dbname=%s sslmode=%s TimeZone=%s",
 		config.GetString("user"),
 		config.GetString("password"),
