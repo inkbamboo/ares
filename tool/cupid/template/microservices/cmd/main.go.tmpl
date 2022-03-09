@@ -1,0 +1,48 @@
+package main
+
+import (
+	"{{.ProjectName}}/packages/{{.ServiceName}}/internal/wire"
+	"github.com/sirupsen/logrus"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+)
+
+// @title Cupid
+// @version 1.0.0
+// @description 基于iris的api服务，默认端口：8000
+// @host 127.0.0.1:8000
+// @BasePath /api
+// @license.name MIT License
+// @license.url
+func main() {
+	logrus.Info("Cupid App Start")
+	app, closeFunc, err := wire.InitApp()
+	if err != nil {
+		panic(err)
+	}
+	go func() {
+		ch := make(chan os.Signal, 1)
+		signal.Notify(ch, syscall.SIGHUP, syscall.SIGINT, syscall.SIGKILL, syscall.SIGTERM, syscall.SIGQUIT)
+		for {
+			s := <-ch
+			logrus.Infof("get a signal %s", s.String())
+			switch s {
+			case syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT:
+				logrus.Info("Cupid App Exit")
+				time.Sleep(time.Second)
+				closeFunc()
+				return
+			case syscall.SIGHUP:
+			default:
+				return
+			}
+		}
+	}()
+	err = app.Server.ListenAndServe()
+	if err != nil && err != http.ErrServerClosed {
+		logrus.Println(err.Error())
+	}
+}

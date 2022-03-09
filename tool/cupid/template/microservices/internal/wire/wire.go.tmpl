@@ -1,0 +1,26 @@
+// +build wireinject
+// The build tag makes sure the stub is not built in the final build.
+
+package wire
+
+import (
+	"{{.ProjectName}}/packages/{{.ServiceName}}/internal/db"
+	"{{.ProjectName}}/packages/{{.ServiceName}}/internal/server"
+	"{{.ProjectName}}/packages/{{.ServiceName}}/internal/service"
+	"{{.ProjectName}}/packages/shared/libraries"
+	"github.com/google/wire"
+)
+
+var initProvider = wire.NewSet(libraries.NewConfig, db.NewMysqlClient, db.NewRedisClient)
+var svcProvider = wire.NewSet(service.NewBoxService)
+var httpProvider = wire.NewSet(server.InitRouter, server.NewHttpServer)
+
+//go:generate wire
+func InitApp() (*App, func(), error) {
+	panic(wire.Build(
+		initProvider,
+		svcProvider,
+		httpProvider,
+		NewApp,
+	))
+}

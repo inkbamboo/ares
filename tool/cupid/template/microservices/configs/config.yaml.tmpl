@@ -1,0 +1,30 @@
+package: &package {{.ModPrefix}}{{.ProjectName}}.{{.ServiceName}}
+appName: {{.ServiceName}}
+version: 1.0.0
+configIsLocal: true
+irisLogLevel: debug
+enableGzip: true
+enableTemplate: false
+reloadTemplate: false
+server:
+  addr: 127.0.0.1:8000
+  readTimeout: 5s
+  writeTimeout: 10s
+  idleTimeout: 15s
+redis:
+  master: &defaultRedis
+    addr: 127.0.0.1:6379
+    password: mypassword
+mysql:
+  master: &defaultMysql
+    host: 127.0.0.1
+    port: 3306
+    user: root
+    password: mypassword
+    dbname: mydbname
+    sslmode: disable
+    log: true
+    timezone: Asia/Shanghai
+    maxIdleConns: 10
+    maxOpenConns: 100
+    connMaxLifetime: 60

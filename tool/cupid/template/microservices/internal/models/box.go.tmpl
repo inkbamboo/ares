@@ -1,0 +1,27 @@
+package models
+
+import "fmt"
+
+type Box struct {
+	BaseModel
+	GoodsID  int `json:"goods_id" gorm:"column:goods_id;comment:商品ID"`      // 商品ID
+	Position int `json:"position" gorm:"column:position;comment:在大盒中的位置"`   // 在大盒中的位置
+	State    int `json:"state" gorm:"column:state;comment:小盒的状态"`           // 小盒的状态
+	ToyID    int `json:"toy_id" gorm:"column:toy_id;comment:关联的玩具ID"`       // 关联的玩具ID
+	SetNo    int `json:"set_no" gorm:"column:set_no;comment:大盒ID"`          // 大盒ID
+	SeriesID int `json:"series_id" gorm:"column:series_id;comment:关联的系列ID"` // 关联的系列ID
+}
+
+func (m *Box) TableName() string {
+	return "box"
+}
+
+func (m *Box) GetBoxNo(goodsId, setNo int) string {
+	temp := 7
+	if goodsId%2 > 0 {
+		temp = 3
+	}
+	goodsTemp := fmt.Sprintf("00000%s", goodsId*temp)
+	goodsTemp = goodsTemp[len(goodsTemp)-5:]
+	return fmt.Sprintf("%s%s", 1000000+setNo%10000000, goodsTemp)
+}
