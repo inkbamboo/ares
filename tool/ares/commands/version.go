@@ -2,7 +2,7 @@ package commands
 
 import (
 	"bytes"
-	"github.com/inkbamboo/ares-service/tools"
+	"github.com/inkbamboo/cupid-service/tools"
 	"runtime"
 	"text/template"
 	"time"
