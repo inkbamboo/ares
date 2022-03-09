@@ -1,15 +1,15 @@
 package mdw
 
-import "github.com/inkbamboo/cupid-service/jwt-iris"
+import (
+	"fmt"
+	"github.com/golang-jwt/jwt"
+)
 
 /**
  * jwt中间件
  */
-func JwtHandler() *jwt.Middleware {
-	return jwt.New(jwt.Config{
-		ValidationKeyGetter: func(token *jwt.Token) (interface{}, error) {
-			return []byte("secret123123"), nil
-		},
-		SigningMethod: jwt.SigningMethodHS256,
-	})
+func JwtHandler() {
+	a := jwt.Token{}
+	fmt.Println(a)
+	//jwt.New()
 }

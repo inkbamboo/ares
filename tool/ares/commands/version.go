@@ -2,7 +2,6 @@ package commands
 
 import (
 	"bytes"
-	"github.com/inkbamboo/cupid-service/tools"
 	"runtime"
 	"text/template"
 	"time"
@@ -10,7 +9,7 @@ import (
 
 var (
 	Version   = "v0.0.1"
-	BuildTime = tools.Tools.TimeFormat(time.Now(), "Y-m-d H:i:s")
+	BuildTime = time.Now().Format("2006-01-02 15:04:05")
 )
 
 // VersionOptions include version
