@@ -2,7 +2,7 @@
 package db
 
 import (
-	"{{.ProjectName}}/packages/shared/libraries"
+	"github.com/inkbamboo/ares/libraries/db"
 	"github.com/spf13/viper"
 	"gorm.io/gorm"
 )
@@ -13,6 +13,6 @@ type MysqlClients struct {
 }
 
 func NewMysqlClient(v *viper.Viper) (clients *MysqlClients, err error) {
-	            {{range .MysqlList}}clients.{{.ClientName}} ,err =         libraries.NewMysqlDB(v, "{{.ConfigName}}")
+	            {{range .MysqlList}}clients.{{.ClientName}} ,err =         db.NewMysqlDB(v, "{{.ConfigName}}")
     {{end}}return
 }

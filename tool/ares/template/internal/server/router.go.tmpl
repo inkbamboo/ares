@@ -1,9 +1,9 @@
 package server
 
 import (
-	"{{.ProjectName}}/packages/{{.ServiceName}}/internal/controller/web"
-	"{{.ProjectName}}/packages/{{.ServiceName}}/internal/service"
-	"{{.ProjectName}}/packages/shared/middlewares"
+	"{{.ProjectName}}/{{.ServiceName}}/internal/controller/web"
+	"{{.ProjectName}}/{{.ServiceName}}/internal/service"
+	"github.com/inkbamboo/ares/libraries/mdw"
 
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/mvc"
@@ -13,7 +13,7 @@ import (
 func InitRouter(boxService service.BoxService, v *viper.Viper) (app *iris.Application, err error) {
 	app = newIris(v)
 	apiParty := mvc.New(app.Party("/api",
-		middlewares.CORS([]string{"*"})).AllowMethods(iris.MethodOptions),
+		mdw.CORS([]string{"*"})).AllowMethods(iris.MethodOptions),
 	)
 	apiParty.Register(boxService)
 	mvc.Configure(app.Party("/box")).Handle(new(web.BoxController))

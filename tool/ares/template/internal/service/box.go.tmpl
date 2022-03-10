@@ -1,9 +1,8 @@
 package service
 
 import (
-	"{{.ProjectName}}/packages/{{.ServiceName}}/internal/db"
-	"{{.ProjectName}}/packages/{{.ServiceName}}/internal/models"
-	"github.com/inkbamboo/ares-service/tools"
+	"{{.ProjectName}}/{{.ServiceName}}/internal/db"
+	"{{.ProjectName}}/{{.ServiceName}}/internal/models"
 	"github.com/spf13/viper"
 )
 
@@ -16,7 +15,6 @@ func NewBoxService(v *viper.Viper, dbs *db.MysqlClients, rcs *db.RedisClients) (
 		v:    v,
 		dbs:  dbs,
 		rcs:  rcs,
-		tool: tools.Tools,
 	}
 	return
 }
@@ -25,7 +23,6 @@ type boxService struct {
 	v    *viper.Viper
 	dbs  *db.MysqlClients
 	rcs  *db.RedisClients
-	tool *tools.Tool
 }
 
 func (s *boxService) GetBox(id uint) (box *models.Box, err error) {

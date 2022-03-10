@@ -2,7 +2,7 @@
 package db
 
 import (
-	"{{.ProjectName}}/packages/shared/libraries"
+	"github.com/inkbamboo/ares/libraries/db"
 	"github.com/go-redis/redis/v8"
 	"github.com/spf13/viper"
 )
@@ -15,7 +15,7 @@ type RedisClients struct {
 
 func NewRedisClient(v *viper.Viper) (clients *RedisClients, err error) {
     {{range .RedisList}}
-		clients.{{.ClientName}} ,err = libraries.NewRedis(v, "{{.ConfigName}}")
+		clients.{{.ClientName}} ,err = db.NewRedis(v, "{{.ConfigName}}")
 	{{end}}
 	return
 }

@@ -4,14 +4,14 @@
 package wire
 
 import (
-	"{{.ProjectName}}/packages/{{.ServiceName}}/internal/db"
-	"{{.ProjectName}}/packages/{{.ServiceName}}/internal/server"
-	"{{.ProjectName}}/packages/{{.ServiceName}}/internal/service"
-	"{{.ProjectName}}/packages/shared/libraries"
+	"{{.ProjectName}}/{{.ServiceName}}/internal/db"
+	"{{.ProjectName}}/{{.ServiceName}}/internal/server"
+	"{{.ProjectName}}/{{.ServiceName}}/internal/service"
+	"github.com/inkbamboo/ares/libraries/config"
 	"github.com/google/wire"
 )
 
-var initProvider = wire.NewSet(libraries.NewConfig, db.NewMysqlClient, db.NewRedisClient)
+var initProvider = wire.NewSet(config.NewConfig, db.NewMysqlClient, db.NewRedisClient)
 var svcProvider = wire.NewSet(service.NewBoxService)
 var httpProvider = wire.NewSet(server.InitRouter, server.NewHttpServer)
 

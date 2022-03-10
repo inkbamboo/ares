@@ -2,7 +2,6 @@ package commands
 
 import (
 	"bytes"
-	"fmt"
 	"github.com/gobuffalo/packr/v2"
 	"go/format"
 	"go/parser"
@@ -12,71 +11,35 @@ import (
 	"os/exec"
 	"path"
 	"path/filepath"
-	"regexp"
 	"strings"
 	"text/template"
 )
 
-func modPath(p string) string {
-	dir := filepath.Dir(p)
-	for {
-		if _, err := os.Stat(filepath.Join(dir, "go.mod")); err == nil {
-			content, _ := ioutil.ReadFile(filepath.Join(dir, "go.mod"))
-			mod := RegexpReplace(`module\s+(?P<name>[\S]+)`, string(content), "$name")
-			name := strings.TrimPrefix(filepath.Dir(p), dir)
-			name = strings.TrimPrefix(name, string(os.PathSeparator))
-			if name == "" {
-				return fmt.Sprintf("%s/", mod)
-			}
-			return fmt.Sprintf("%s/%s/", mod, name)
-		}
-		parent := filepath.Dir(dir)
-		if dir == parent {
-			return ""
-		}
-		dir = parent
-	}
-}
-
-// RegexpReplace replace regexp
-func RegexpReplace(reg, src, temp string) string {
-	var result []byte
-	pattern := regexp.MustCompile(reg)
-	for _, subMatches := range pattern.FindAllStringSubmatchIndex(src, -1) {
-		result = pattern.ExpandString(result, temp, src, subMatches)
-	}
-	return string(result)
-}
-
 //go:generate packr2
 func createProject() (err error) {
-	box := packr.New("all", "./../template/project")
-	if err = os.MkdirAll(f.Path, 0755); err != nil {
+	box := packr.New("all", "./../template")
+	if err = os.MkdirAll(filepath.Join(f.ProjectPath, f.ServiceName), 0755); err != nil {
 		return
 	}
 	for _, name := range box.List() {
-		tmpl, _ := box.FindString(name)
-		if err = writeOneTmpl(f.Path, name, tmpl); err != nil {
-			return
+		if name == "go.mod.tmpl" {
+			if Exists(filepath.Join(f.ProjectPath, "go.mod")) {
+				continue
+			}
 		}
-	}
-	return
-}
+		tmpl, _ := box.FindString(name)
+		if name == "go.mod.tmpl" || name == ".gitignore" {
+			if err = writeOneTmpl(f.ProjectPath, name, tmpl); err != nil {
+				return
+			}
+		} else {
+			if err = writeOneTmpl(filepath.Join(f.ProjectPath, f.ServiceName), name, tmpl); err != nil {
+				return
+			}
+		}
 
-//go:generate packr2
-func createService() (err error) {
-	box := packr.New("service", "./../template/microservices")
-	servicePath := filepath.Join(f.Path, "packages", f.ServiceName)
-	if err = os.MkdirAll(servicePath, 0755); err != nil {
-		return
 	}
-	for _, name := range box.List() {
-		tmpl, _ := box.FindString(name)
-		if err = writeOneTmpl(servicePath, name, tmpl); err != nil {
-			return
-		}
-	}
-	if err = generate(filepath.Join("./packages", f.ServiceName, "internal/wire/wire.go")); err != nil {
+	if err = generate("internal/wire/wire.go"); err != nil {
 		return
 	}
 	return
@@ -102,7 +65,7 @@ func writeOneTmpl(basePath, name, tmpl string) (err error) {
 func formatOneTmpl(tmpl string) ([]byte, error) {
 	node, err := parser.ParseExpr(tmpl)
 	if err != nil {
-		fmt.Println("******111111", tmpl)
+		//fmt.Println("******111111", tmpl)
 		return []byte(tmpl), err
 	}
 	fset := token.NewFileSet()
@@ -115,14 +78,13 @@ func formatOneTmpl(tmpl string) ([]byte, error) {
 }
 func generate(path string) error {
 	cmd := exec.Command("go", "generate", path)
-	cmd.Dir = f.Path
+	cmd.Dir = filepath.Join(f.ProjectPath, f.ServiceName)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	return cmd.Run()
 }
 
 func write(path, tpl string) (err error) {
-
 	data, err := parse(tpl)
 	if err != nil {
 		return
