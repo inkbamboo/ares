@@ -2,6 +2,7 @@ package commands
 
 import (
 	"fmt"
+	commands "github.com/inkbamboo/ares/tool/ares/commands/visitors"
 	"github.com/urfave/cli/v2"
 	"os"
 	"os/exec"
@@ -105,4 +106,14 @@ func RunAction(c *cli.Context) error {
 		return err
 	}
 	return nil
+}
+
+func AddService() {
+	pkgParse := commands.LoadStruct{}
+	structList := pkgParse.GetStructs(filepath.Join(f.ProjectPath, f.ServiceName, "/internal/service"), "^[A-Z].*Service")
+	fmt.Printf("%+v\n", structList)
+
+	visitor := &commands.WireVisitor{}
+	// 通过解析src来创建AST。
+	commands.GetFile(filepath.Join(f.ProjectPath, f.ServiceName, "/internal/service"), visitor)
 }

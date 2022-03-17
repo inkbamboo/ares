@@ -1,10 +1,12 @@
 package commands
 
 import (
+	"context"
 	"fmt"
 	"github.com/sirupsen/logrus"
 	"go/build"
 	"go/format"
+	"golang.org/x/tools/go/packages"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -162,4 +164,32 @@ func RunCmd(name, dir, cmd string, args []string) (err error) {
 		}
 	}
 	return
+}
+
+func load(ctx context.Context, wd string, env []string, patterns []string) ([]*packages.Package, []error) {
+	cfg := &packages.Config{
+		Context:    ctx,
+		Mode:       packages.LoadAllSyntax,
+		Dir:        wd,
+		Env:        env,
+		BuildFlags: []string{},
+	}
+	escaped := make([]string, len(patterns))
+	for i := range patterns {
+		escaped[i] = "pattern=" + patterns[i]
+	}
+	pkgs, err := packages.Load(cfg, escaped...)
+	if err != nil {
+		return nil, []error{err}
+	}
+	var errs []error
+	for _, p := range pkgs {
+		for _, e := range p.Errors {
+			errs = append(errs, e)
+		}
+	}
+	if len(errs) > 0 {
+		return nil, errs
+	}
+	return pkgs, nil
 }

@@ -4,13 +4,12 @@ import (
 	"bytes"
 	"github.com/gobuffalo/packr/v2"
 	"go/format"
-	"go/parser"
-	"go/token"
 	"io/ioutil"
 	"os"
 	"os/exec"
 	"path"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"text/template"
 )
@@ -62,20 +61,6 @@ func writeOneTmpl(basePath, name, tmpl string) (err error) {
 	}
 	return
 }
-func formatOneTmpl(tmpl string) ([]byte, error) {
-	node, err := parser.ParseExpr(tmpl)
-	if err != nil {
-		//fmt.Println("******111111", tmpl)
-		return []byte(tmpl), err
-	}
-	fset := token.NewFileSet()
-	var buf bytes.Buffer
-	err = format.Node(&buf, fset, node)
-	if err != nil {
-		return []byte(tmpl), err
-	}
-	return buf.Bytes(), err
-}
 func generate(path string) error {
 	cmd := exec.Command("go", "generate", path)
 	cmd.Dir = filepath.Join(f.ProjectPath, f.ServiceName)
@@ -89,20 +74,23 @@ func write(path, tpl string) (err error) {
 	if err != nil {
 		return
 	}
-	formatData, _ := formatOneTmpl(data)
-	return ioutil.WriteFile(path, formatData, 0644)
+	reg := regexp.MustCompile(`.*\.go`)
+	if reg.Match([]byte(path)) {
+		data, _ = format.Source(data)
+	}
+	return ioutil.WriteFile(path, data, 0644)
 }
 
-func parse(s string) (string, error) {
+func parse(s string) ([]byte, error) {
 	t, err := template.New("").Parse(s)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	var buf bytes.Buffer
 	if err = t.Execute(&buf, f); err != nil {
-		return "", err
+		return nil, err
 	}
-	return buf.String(), err
+	return buf.Bytes(), err
 }
 
 func buildDir(base string, cmd string, n int) string {
