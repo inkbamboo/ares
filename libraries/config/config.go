@@ -8,7 +8,7 @@ import (
 )
 
 func NewConfig() (*viper.Viper, error) {
-	pflag.String("env", "local", "env")
+	pflag.String("env", "", "env")
 	pflag.String("configPath", "configs/", "configPath")
 	pflag.String("data", "file", "配置来源")
 	pflag.Parse()
