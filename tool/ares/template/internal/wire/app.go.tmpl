@@ -1,0 +1,29 @@
+package wire
+
+import (
+	"{{.ProjectName}}/{{.ServiceName}}/internal/service"
+	"context"
+	"github.com/sirupsen/logrus"
+	"net/http"
+	"time"
+)
+
+type App struct {
+	Server     *http.Server
+	BoxService service.BoxService
+}
+
+func NewApp(server *http.Server, boxService service.BoxService) (app *App, closeFunc func(), err error) {
+	app = &App{
+		Server:     server,
+		BoxService: boxService,
+	}
+	closeFunc = func() {
+		ctx, cancel := context.WithTimeout(context.Background(), 35*time.Second)
+		if err := server.Shutdown(ctx); err != nil {
+			logrus.Errorf("httpServer.Shutdown error(%v)", err)
+		}
+		cancel()
+	}
+	return
+}

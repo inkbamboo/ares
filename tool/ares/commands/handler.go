@@ -2,6 +2,7 @@ package commands
 
 import (
 	"fmt"
+	commands "github.com/inkbamboo/ares/tool/ares/commands/visitors"
 	"github.com/urfave/cli/v2"
 	"os"
 	"os/exec"
@@ -10,18 +11,9 @@ import (
 
 func NewAction() cli.ActionFunc {
 	return func(ctx *cli.Context) (err error) {
-		subCmd := ""
-		if ctx.NArg() > 0 {
-			subCmd = ctx.Args().Get(0)
-		}
 		installToolList()
-		if subCmd == "project" {
-			err = newProject(ctx)
-			checkGoMode(f.Path)
-		} else if subCmd == "service" {
-			err = newMicroservice(ctx)
-			checkGoMode(f.Path)
-		}
+		err = newProject(ctx)
+		//checkGoMode(f.Path)
 		return
 	}
 }
@@ -35,39 +27,18 @@ func checkGoMode(dir string) {
 }
 
 func newProject(ctx *cli.Context) (err error) {
-	f.ProjectName = ctx.Args().Get(1)
-	if f.Path != "" {
-		if f.Path, err = filepath.Abs(f.Path); err != nil {
+	//服务名称
+	f.ServiceName = ctx.Args().Get(0)
+	if f.ProjectPath != "" {
+		if f.ProjectPath, err = filepath.Abs(f.ProjectPath); err != nil {
 			return
 		}
-		f.Path = filepath.Join(f.Path, f.ProjectName)
+		f.ProjectName = filepath.Base(f.ProjectPath)
 	} else {
-		pwd, _ := os.Getwd()
-		f.Path = filepath.Join(pwd, f.ProjectName)
+		f.ProjectPath, _ = os.Getwd()
 	}
-	f.ModPrefix = modPath(f.Path)
-	// creata a project
-	if err = createProject(); err != nil {
-		return
-	}
-	fmt.Printf("Project: %s\n", f.ProjectName)
-	fmt.Printf("Directory: %s\n", f.Path)
-	fmt.Println("项目创建成功.")
-	return
-}
-
-func newMicroservice(ctx *cli.Context) (err error) {
-	f.ServiceName = ctx.Args().Get(1)
-	if f.Path != "" {
-		if f.Path, err = filepath.Abs(f.Path); err != nil {
-			return
-		}
-		f.ProjectName = filepath.Base(f.Path)
-	} else {
-		f.Path, _ = os.Getwd()
-	}
-	f.ProjectName = filepath.Base(f.Path)
-	f.ModPrefix = modPath(f.Path)
+	//取当前文件夹为工程名称
+	f.ProjectName = filepath.Base(f.ProjectPath)
 	f.MysqlList = []DbClient{
 		{
 			ConfigName: "master",
@@ -81,13 +52,13 @@ func newMicroservice(ctx *cli.Context) (err error) {
 		ConfigName: "master",
 		ClientName: "MasterClient",
 	}}
-	// creata a app
-	if err = createService(); err != nil {
+	// creata a project
+	if err = createProject(); err != nil {
 		return
 	}
-	fmt.Printf("Project: %s\n", f.ServiceName)
-	fmt.Printf("Directory: %s\n\n", f.Path)
-	fmt.Println("服务创建成功.")
+	fmt.Printf("Project: %s\n", f.ProjectName)
+	fmt.Printf("Directory: %s\n", f.ProjectPath)
+	fmt.Println("项目创建成功.")
 	return
 }
 
@@ -135,4 +106,14 @@ func RunAction(c *cli.Context) error {
 		return err
 	}
 	return nil
+}
+
+func AddService() {
+	pkgParse := commands.LoadStruct{}
+	structList := pkgParse.GetStructs(filepath.Join(f.ProjectPath, f.ServiceName, "/internal/service"), "^[A-Z].*Service")
+	fmt.Printf("%+v\n", structList)
+
+	visitor := &commands.WireVisitor{}
+	// 通过解析src来创建AST。
+	commands.GetFile(filepath.Join(f.ProjectPath, f.ServiceName, "/internal/service"), visitor)
 }

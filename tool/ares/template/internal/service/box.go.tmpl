@@ -1,0 +1,34 @@
+package service
+
+import (
+	"{{.ProjectName}}/{{.ServiceName}}/internal/db"
+	"{{.ProjectName}}/{{.ServiceName}}/internal/models"
+	"github.com/spf13/viper"
+)
+
+type BoxService interface {
+	GetBox(id uint) (box *models.Box, err error)
+}
+
+func NewBoxService(v *viper.Viper, dbs *db.MysqlClients, rcs *db.RedisClients) (s BoxService, err error) {
+	s = &boxService{
+		v:    v,
+		dbs:  dbs,
+		rcs:  rcs,
+	}
+	return
+}
+
+type boxService struct {
+	v    *viper.Viper
+	dbs  *db.MysqlClients
+	rcs  *db.RedisClients
+}
+
+func (s *boxService) GetBox(id uint) (box *models.Box, err error) {
+	box.ID = id
+	if err = s.dbs.MasterClient.Find(box).Error; err != nil {
+		return
+	}
+	return
+}

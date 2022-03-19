@@ -3,9 +3,9 @@ package commands
 import "github.com/urfave/cli/v2"
 
 type Flags struct {
-	ServiceName string
-	Path        string
 	ProjectName string
+	ProjectPath string
+	ServiceName string
 	ModPrefix   string
 	RedisList   []DbClient
 	MysqlList   []DbClient
@@ -23,7 +23,7 @@ func (f *Flags) ToNewAction() []cli.Flag {
 			Name:        "d",
 			Value:       "",
 			Usage:       "指定项目所在目录",
-			Destination: &f.Path,
+			Destination: &f.ProjectPath,
 		},
 	}
 }
@@ -33,7 +33,7 @@ func (f *Flags) ToServiceAction() []cli.Flag {
 			Name:        "d",
 			Value:       "",
 			Usage:       "指定项目所在目录",
-			Destination: &f.Path,
+			Destination: &f.ProjectPath,
 		},
 	}
 }

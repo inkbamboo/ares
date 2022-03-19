@@ -1,0 +1,24 @@
+package web
+
+import (
+	"{{.ProjectName}}/{{.ServiceName}}/internal/service"
+	"github.com/kataras/iris/v12"
+)
+
+type BoxController struct {
+	BoxService service.BoxService
+}
+
+// BoxInfo godoc
+// @Description BoxInfo
+// @Tags Box
+// @Accept  json
+// @Produce  json
+// @Param id query int true "小盒地"
+// @Success 200 {object} model.Box
+// @Failure 500 {object} model.JSON
+// @Router /box/info [get]
+func (c *BoxController) BoxInfo(ctx iris.Context) {
+	c.BoxService.GetBox(1)
+	ctx.JSON(iris.Map{"aaa": "bbb"})
+}
