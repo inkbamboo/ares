@@ -23,10 +23,10 @@ func Default() *Ares {
 }
 
 type Ares struct {
-	Orms        map[string]*store.Orm
-	Mongos      map[string]*mongo.Database
-	Redis       map[string]*redis.Client
-	MemoryCache *cache.Cache
+	orms        map[string]*store.Orm
+	mongos      map[string]*mongo.Database
+	redis       map[string]*redis.Client
+	memoryCache *cache.Cache
 }
 
 func NewAres() *Ares {
@@ -43,43 +43,43 @@ func NewAres() *Ares {
 			}
 		}
 	}
-	a.Orms = orms
-	a.Mongos = mongos
+	a.orms = orms
+	a.mongos = mongos
 	redisClients := make(map[string]*redis.Client)
 	if len(cfg.Caches) > 0 {
 		for _, item := range cfg.Caches {
 			redisClients[item.Alias] = store.NewRedis(item)
 		}
 	}
-	a.Redis = redisClients
+	a.redis = redisClients
 
 	if lo.IsNotEmpty(cfg.MemoryCache) {
-		a.MemoryCache = store.NewMemoryCache(cfg.MemoryCache)
+		a.memoryCache = store.NewMemoryCache(cfg.MemoryCache)
 	}
 
 	return a
 }
 func (a *Ares) GetOrm(alias string) *store.Orm {
-	if _, ok := a.Orms[alias]; !ok {
+	if _, ok := a.orms[alias]; !ok {
 		panic(fmt.Errorf("GetOrm: cannot get orm alias '%s'", alias))
 	}
-	return a.Orms[alias]
+	return a.orms[alias]
 }
 
 func (a *Ares) GetRedis(alias string) *redis.Client {
-	if _, ok := a.Redis[alias]; !ok {
+	if _, ok := a.redis[alias]; !ok {
 		panic(fmt.Errorf("GetCache: cannot get cache alias '%s'", alias))
 	}
-	return a.Redis[alias]
+	return a.redis[alias]
 }
 func (a *Ares) GetMongo(alias string) *mongo.Database {
-	if _, ok := a.Mongos[alias]; !ok {
+	if _, ok := a.mongos[alias]; !ok {
 		panic(fmt.Errorf("GetCache: cannot get cache alias '%s'", alias))
 	}
-	return a.Mongos[alias]
+	return a.mongos[alias]
 }
 func (a *Ares) GetMemoryCache() *cache.Cache {
-	return a.MemoryCache
+	return a.memoryCache
 }
 func InitConfigWithPath(env string, configPath string) {
 	config.InitConfigWithPath(env, configPath)
