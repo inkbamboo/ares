@@ -13,7 +13,7 @@ func NewMongo(database config.DatabaseConfig, debug bool) *mongo.Database {
 	if database.Username != "" {
 		dsn += database.Username + ":" + database.Password + "@"
 	}
-	dsn += database.Host + ":" + fmt.Sprintf("%d", database.Port) + "/" + database.DbName
+	dsn += database.Host + ":" + fmt.Sprintf("%d", database.Port)
 	opts := options.Client().ApplyURI(dsn)
 	client, _ := mongo.Connect(context.TODO(), opts)
 	db := client.Database(database.DbName)
