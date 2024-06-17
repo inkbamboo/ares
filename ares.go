@@ -68,13 +68,13 @@ func (a *Ares) GetOrm(alias string) *store.Orm {
 
 func (a *Ares) GetRedis(alias string) *redis.Client {
 	if _, ok := a.redis[alias]; !ok {
-		panic(fmt.Errorf("GetCache: cannot get cache alias '%s'", alias))
+		panic(fmt.Errorf("GetRedis: cannot get redis alias '%s'", alias))
 	}
 	return a.redis[alias]
 }
 func (a *Ares) GetMongo(alias string) *mongo.Database {
 	if _, ok := a.mongos[alias]; !ok {
-		panic(fmt.Errorf("GetCache: cannot get cache alias '%s'", alias))
+		panic(fmt.Errorf("GetMongo: cannot get mongo alias '%s'", alias))
 	}
 	return a.mongos[alias]
 }
