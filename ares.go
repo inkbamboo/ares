@@ -36,7 +36,7 @@ func NewAres() *Ares {
 	mongos := make(map[string]*mongo.Database)
 	if len(cfg.Databases) > 0 {
 		for _, item := range cfg.Databases {
-			if item.Dialect != "mongo" {
+			if item.Dialect != "mongodb" {
 				orms[item.Alias] = store.NewOrm(item, cfg.Debug)
 			} else {
 				mongos[item.Alias] = store.NewMongo(item, cfg.Debug)
