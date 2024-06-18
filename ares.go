@@ -8,7 +8,6 @@ import (
 	"github.com/patrickmn/go-cache"
 	"github.com/samber/lo"
 	"github.com/spf13/viper"
-	"go.mongodb.org/mongo-driver/mongo"
 	"sync"
 )
 
@@ -24,7 +23,7 @@ func Default() *Ares {
 
 type Ares struct {
 	orms        map[string]*store.Orm
-	mongos      map[string]*mongo.Database
+	mongos      map[string]*store.MongoDB
 	redis       map[string]*redis.Client
 	memoryCache *cache.Cache
 }
@@ -33,7 +32,7 @@ func NewAres() *Ares {
 	cfg := config.GetBaseConfig()
 	a := &Ares{}
 	orms := make(map[string]*store.Orm)
-	mongos := make(map[string]*mongo.Database)
+	mongos := make(map[string]*store.MongoDB)
 	if len(cfg.Databases) > 0 {
 		for _, item := range cfg.Databases {
 			if item.Dialect != "mongodb" {
@@ -72,7 +71,7 @@ func (a *Ares) GetRedis(alias string) *redis.Client {
 	}
 	return a.redis[alias]
 }
-func (a *Ares) GetMongo(alias string) *mongo.Database {
+func (a *Ares) GetMongo(alias string) *store.MongoDB {
 	if _, ok := a.mongos[alias]; !ok {
 		panic(fmt.Errorf("GetMongo: cannot get mongo alias '%s'", alias))
 	}
