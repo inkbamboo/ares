@@ -91,3 +91,6 @@ func GetEnv() string {
 func GetConfig() *viper.Viper {
 	return config.GetConfig()
 }
+func GetBaseConfig() *config.BaseConfig {
+	return config.GetBaseConfig()
+}
