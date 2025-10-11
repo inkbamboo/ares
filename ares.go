@@ -42,6 +42,8 @@ type Ares struct {
 func NewAres() *Ares {
 	cfg := config.GetBaseConfig()
 	a := &Ares{}
+	a.gin = gin.Default()
+
 	orms := make(map[string]*store.Orm)
 	mongos := make(map[string]*store.MongoDB)
 	if !validator.IsZeroValue(cfg.Databases) {
@@ -87,7 +89,7 @@ func NewAres() *Ares {
 	return a
 }
 func (a *Ares) GetGin() *gin.Engine {
-	return gin.Default()
+	return a.gin
 }
 
 // Run run ripple application
