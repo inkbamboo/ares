@@ -8,10 +8,12 @@ import (
 )
 
 type BaseConfig struct {
+	AutoMigrate bool              `mapstructure:"autoMigrate,omitempty"` // debug, default false
 	Debug       bool              `mapstructure:"debug,omitempty"`       // debug, default false
 	Domain      string            `mapstructure:"domain,omitempty"`      // domain=127.0.0.1:8090
 	Databases   []DatabaseConfig  `mapstructure:"databases,omitempty"`   // databases
 	Caches      []CacheConfig     `mapstructure:"caches,omitempty"`      // caches
+	Logs        []LogConfig       `mapstructure:"logs,omitempty"`        // logs
 	MemoryCache MemoryCacheConfig `mapstructure:"memoryCache,omitempty"` // caches
 }
 
@@ -40,11 +42,28 @@ type MemoryCacheConfig struct {
 	DefaultExpiration int `mapstructure:"defaultExpiration"`
 	CleanupInterval   int `mapstructure:"defaultExpiration"`
 }
+type LogConfig struct {
+	Alias           string `mapstructure:"alias"`
+	Type            string `mapstructure:"type"` // sls, cls
+	AccessKeyId     string `mapstructure:"accessKeyId"`
+	AccessKeySecret string `mapstructure:"accessKeySecret"`
+	Endpoint        string `mapstructure:"endpoint"`
+	AllowLogLevel   string `mapstructure:"allowLogLevel"`
+	CloseStdout     bool   `mapstructure:"closeStdout"`
+	Project         string `mapstructure:"project"`
+	Logstore        string `mapstructure:"logstore"`
+	Topic           string `mapstructure:"topic"`
+	Source          string `mapstructure:"source"`
+}
 
 var (
 	v  *viper.Viper
 	bc *BaseConfig
 )
+
+func InitConfig(env string) {
+	InitConfigWithPath(env, "./config/")
+}
 
 func InitConfigWithPath(env string, configPath string) {
 	fmt.Println(fmt.Sprintf("配置文件路径: %s", configPath))

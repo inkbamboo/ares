@@ -50,3 +50,6 @@ func GetTypeName(typ reflect.Type) string {
 	split := strings.Split(typ.String(), ".")
 	return split[len(split)-1]
 }
+func IsEmpty() {
+
+}
