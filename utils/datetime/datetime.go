@@ -75,7 +75,7 @@ func (t LocalTime) String() string {
 	if t.IsZero() {
 		return ""
 	}
-	return carbon.NewCarbon(t.Time.In(time.Local)).ToDateTimeString()
+	return carbon.NewCarbon(t.Time).ToDateTimeString(time.Local.String())
 }
 
 func getAbsValue(value int64) int64 {
