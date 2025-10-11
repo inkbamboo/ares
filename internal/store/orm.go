@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/inkbamboo/ares/internal/config"
-	"github.com/inkbamboo/ares/internal/utils"
+	"github.com/inkbamboo/ares/utils"
 	"github.com/labstack/gommon/color"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
