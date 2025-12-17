@@ -11,6 +11,7 @@ import (
 	"github.com/inkbamboo/ares/internal/logger/cls"
 	"github.com/inkbamboo/ares/internal/logger/sls"
 	"github.com/inkbamboo/ares/internal/store"
+	log "github.com/inkbamboo/ares/logger"
 	"github.com/patrickmn/go-cache"
 	"github.com/samber/lo"
 	"github.com/sirupsen/logrus"
@@ -43,7 +44,7 @@ func NewAres() *Ares {
 	cfg := config.GetBaseConfig()
 	a := &Ares{}
 	a.gin = gin.Default()
-
+	a.logger = log.StandardLogger()
 	orms := make(map[string]*store.Orm)
 	mongos := make(map[string]*store.MongoDB)
 	if !validator.IsZeroValue(cfg.Databases) {
@@ -99,7 +100,6 @@ func (a *Ares) Run() {
 
 // RunWith run ripple application
 func (a *Ares) RunWith(domain string) {
-	// autoMigrate all orms
 	if GetBaseConfig().AutoMigrate {
 		for alias := range a.orms {
 			a.orms[alias].AutoMigrateAll()

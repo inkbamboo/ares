@@ -74,11 +74,15 @@ func InitConfigWithPath(env string, configPath string) {
 	v.SetConfigType("yaml")
 	v.AddConfigPath(configPath)
 	configs := packr.New("configs", configPath)
-	data, err := configs.Find(configName)
-	if err != nil {
+	var data []byte
+	var err error
+	if data, err = configs.Find(configName); err != nil {
 		panic(err)
 	}
-	viper.ReadConfig(bytes.NewBuffer(data))
+	if err = v.ReadConfig(bytes.NewBuffer(data)); err != nil {
+		panic(err)
+	}
+
 	if err = v.ReadInConfig(); err != nil {
 		fmt.Println(fmt.Sprintf("Viper ReadInConfig err:%s\n", err))
 		panic(err)

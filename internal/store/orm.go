@@ -28,7 +28,6 @@ func NewOrm(database config.DatabaseConfig, debug bool) *Orm {
 	orm := &Orm{
 		models: make(map[string]reflect.Value),
 	}
-
 	dialect := database.Dialect
 	host := database.Host
 	port := database.Port
