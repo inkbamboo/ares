@@ -1,6 +1,6 @@
 module github.com/inkbamboo/ares
 
-go 1.24.6
+go 1.25
 
 require (
 	github.com/aliyun/aliyun-log-go-sdk v0.1.109
