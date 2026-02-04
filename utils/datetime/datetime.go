@@ -3,15 +3,16 @@ package datetime
 import (
 	"database/sql/driver"
 	"fmt"
-	"github.com/dromara/carbon/v2"
-	"github.com/jinzhu/now"
 	"math"
 	"strings"
 	"time"
+
+	"github.com/dromara/carbon/v2"
+	"github.com/jinzhu/now"
 )
 
 type LocalTime struct {
-	now.Now
+	now.Now `swaggerignore:"true"`
 }
 
 func Now() *LocalTime {
@@ -63,21 +64,24 @@ func (t LocalTime) Value() (driver.Value, error) {
 
 // Scan 检出 mysql 时调用
 func (t *LocalTime) Scan(v interface{}) error {
-	if vt, ok := v.(time.Time); ok {
-		*t = LocalTime{
-			*now.New(vt),
-		}
+	switch v.(type) {
+	case time.Time:
+		*t = *NewLocalTime(v.(time.Time))
+	case *time.Time:
+		*t = *NewLocalTime(*v.(*time.Time))
+	case LocalTime:
+		*t = v.(LocalTime)
+	case *LocalTime:
+		*t = *v.(*LocalTime)
 	}
 	return nil
 }
-
 func (t LocalTime) String() string {
 	if t.IsZero() {
 		return ""
 	}
 	return carbon.NewCarbon(t.Time).ToDateTimeString(time.Local.String())
 }
-
 func getAbsValue(value int64) int64 {
 	return (value ^ (value >> 63)) - (value >> 63)
 }
@@ -138,4 +142,7 @@ func (t *LocalTime) DiffInSeconds(lc ...*LocalTime) int64 {
 
 func (t *LocalTime) DiffAbsInSeconds(lc ...*LocalTime) int64 {
 	return getAbsValue(t.DiffInSeconds(lc...))
+}
+func (t LocalTime) TimeValue() time.Time {
+	return t.Time
 }
