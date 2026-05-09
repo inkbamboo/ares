@@ -43,6 +43,10 @@ type Ares struct {
 func NewAres() *Ares {
 	cfg := config.GetBaseConfig()
 	a := &Ares{}
+	// 根据配置设置 Gin 模式，release 模式下不会打印路由日志
+	if !cfg.Debug {
+		gin.SetMode(gin.ReleaseMode)
+	}
 	a.gin = gin.Default()
 	a.logger = log.StandardLogger()
 	orms := make(map[string]*store.Orm)
