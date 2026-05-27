@@ -47,7 +47,8 @@ func NewAres() *Ares {
 	if !cfg.Debug {
 		gin.SetMode(gin.ReleaseMode)
 	}
-	a.gin = gin.Default()
+	a.gin = gin.New()
+	a.gin.Use(gin.Recovery())
 	a.logger = log.StandardLogger()
 	orms := make(map[string]*store.Orm)
 	mongos := make(map[string]*store.MongoDB)
