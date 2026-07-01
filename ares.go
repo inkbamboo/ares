@@ -3,6 +3,9 @@ package ares
 import (
 	"bufio"
 	"fmt"
+	"os"
+	"sync"
+
 	"github.com/duke-git/lancet/v2/validator"
 	"github.com/fatih/color"
 	"github.com/gin-gonic/gin"
@@ -16,8 +19,6 @@ import (
 	"github.com/samber/lo"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
-	"os"
-	"sync"
 )
 
 var ares *Ares
@@ -110,10 +111,10 @@ func (a *Ares) RunWith(domain string) {
 			a.orms[alias].AutoMigrateAll()
 		}
 	}
-	a.logger.Info(color.GreenString("Ripple ListenAndServe: %s", domain))
+	a.logger.Info(color.GreenString("Ares ListenAndServe: %s", domain))
 	err := a.gin.Run(domain)
 	if err != nil {
-		a.logger.Error(color.RedString("Ripple Start error: %s", err))
+		a.logger.Error(color.RedString("Ares Start error: %s", err))
 	}
 }
 
