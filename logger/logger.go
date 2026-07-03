@@ -1,3 +1,4 @@
+// Package logger 提供基于 logrus 的标准日志接口封装。
 package logger
 
 import (
@@ -11,14 +12,16 @@ import (
 )
 
 var (
-	// std is the name of the standard logger in stdlib `log`
+	// std 是全局标准 logger 实例
 	std = logrus.New()
 )
 
+// StandardLogger 返回全局标准 logger 实例。
 func StandardLogger() *logrus.Logger {
 	return std
 }
 
+// With 创建一个带自定义字段的日志条目，并自动添加调用者信息。
 func With(fields map[string]interface{}) *logrus.Entry {
 	if fields == nil {
 		fields = make(map[string]interface{})
@@ -28,6 +31,7 @@ func With(fields map[string]interface{}) *logrus.Entry {
 	return WithFields(fields)
 }
 
+// WithTo 使用指定的 logger 创建带自定义字段的日志条目，并自动添加调用者信息。
 func WithTo(one *logrus.Logger, fields map[string]interface{}) *logrus.Entry {
 	if fields == nil {
 		fields = make(map[string]interface{})

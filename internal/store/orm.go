@@ -127,6 +127,7 @@ func (orm *Orm) AddModels(values ...interface{}) error {
 	return nil
 }
 
+// Close 关闭数据库连接。
 func (orm *Orm) Close() error {
 	db, err := orm.DB.DB()
 	if err != nil {

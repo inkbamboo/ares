@@ -1,3 +1,4 @@
+// Package utils 提供通用工具函数集合。
 package utils
 
 import (
@@ -12,6 +13,7 @@ import (
 	"syscall"
 )
 
+// ExternalIP 获取本机第一个非回环的 IPv4 地址。
 func ExternalIP() (string, error) {
 	ifaces, err := net.Interfaces()
 	if err != nil {
@@ -48,6 +50,7 @@ func ExternalIP() (string, error) {
 	}
 	return "", errors.New("are you connected to the network?")
 }
+// GetTypeName 获取 reflect.Type 的类型名称。
 func GetTypeName(typ reflect.Type) string {
 	if typ.Name() != "" {
 		return typ.Name()
@@ -56,10 +59,17 @@ func GetTypeName(typ reflect.Type) string {
 	return split[len(split)-1]
 }
 
+// CurrentMethodName 获取当前调用方法的名称。
 func CurrentMethodName() string {
 	pc := make([]uintptr, 10) // at least 1 entry needed
-	runtime.Callers(1, pc)
+	n := runtime.Callers(1, pc)
+	if n < 2 {
+		return ""
+	}
 	f := runtime.FuncForPC(pc[1])
+	if f == nil {
+		return ""
+	}
 	arr := strings.Split(f.Name(), ".")
 	return arr[len(arr)-1]
 }

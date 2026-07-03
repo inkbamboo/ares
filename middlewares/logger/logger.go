@@ -1,6 +1,6 @@
+// Package logger 提供自定义彩色日志器实现（独立于 logrus）。
 package logger
 
-// Package name declaration
 // Import packages
 import (
 	"bytes"
@@ -13,10 +13,10 @@ import (
 )
 
 var (
-	// Map for te various codes of colors
+	// colors 存储不同日志级别对应的颜色代码
 	colors map[string]string
 
-	// Contains color strings for stdout
+	// logNo 日志序号计数器
 	logNo uint64
 )
 
@@ -32,16 +32,13 @@ const (
 	White
 )
 
-// Worker class, Worker is a log object used to log messages and Color specifies
-// if colored output is to be produced
+// Worker 是底层日志工作者，负责实际的日志输出和颜色处理。
 type Worker struct {
 	Minion *log.Logger
 	Color  int
 }
 
-// Info class, Contains all the info on what has to logged, time is the current time, Module is the specific module
-// For which we are logging, level is the state, importance and type of message logged,
-// Message contains the string to be logged, format is the format of string to be passed to sprintf
+// Info 包含单条日志的所有信息。
 type Info struct {
 	Id      uint64
 	Time    string
@@ -51,38 +48,34 @@ type Info struct {
 	format  string
 }
 
-// Logger class that is an interface to user to log messages, Module is the module for which we are testing
-// worker is variable of Worker class that is used in bottom layers to log the message
+// Logger 是面向用户的日志接口，提供模块化的日志记录功能。
 type Logger struct {
 	Module string
 	worker *Worker
 }
 
-// Returns a proper string to be outputted for a particular info
+// Output 返回格式化后的日志字符串。
 func (r *Info) Output() string {
 
 	var idString string
 	if r.Id < 10 {
-		// 001
 		idString = fmt.Sprintf("00%d", r.Id)
 	} else if r.Id >= 10 && r.Id <= 99 {
-		// 010
 		idString = fmt.Sprintf("0%d", r.Id)
 	} else {
-		//1000
+		idString = fmt.Sprintf("%d", r.Id)
 	}
 
 	msg := fmt.Sprintf(r.format, idString, r.Time, r.Level, r.Message)
 	return msg
 }
 
-// Returns an instance of worker class, prefix is the string attached to every log,
-// flag determine the log params, color parameters verifies whether we need colored outputs or not
+// NewWorker 创建一个新的 Worker 实例。
 func NewWorker(prefix string, flag int, color int, out io.Writer) *Worker {
 	return &Worker{Minion: log.New(out, prefix, flag), Color: color}
 }
 
-// Function of Worker class to log a string based on level
+// Log 根据日志级别输出带颜色或不带颜色的日志。
 func (w *Worker) Log(level string, calldepth int, info *Info) error {
 	if w.Color != 0 {
 		buf := &bytes.Buffer{}
@@ -95,12 +88,12 @@ func (w *Worker) Log(level string, calldepth int, info *Info) error {
 	}
 }
 
-// Returns a proper string to output for colored logging
+// colorString 返回指定颜色的 ANSI 转义序列字符串。
 func colorString(color int) string {
 	return fmt.Sprintf("\033[%dm", int(color))
 }
 
-// Initializes the map of colors
+// initColors 初始化日志级别颜色映射表。
 func initColors() {
 	colors = map[string]string{
 		"CRITICAL": colorString(Magenta),
@@ -112,9 +105,8 @@ func initColors() {
 	}
 }
 
-// Returns a new instance of logger class, module is the specific module for which we are logging
-// , color defines whether the output is to be colored or not, out is instance of type io.Writer defaults
-// to os.Stderr
+// NewLogger 创建一个新的 Logger 实例。
+// 可选参数：module(string)、color(int)、out(io.Writer)。
 func NewLogger(args ...interface{}) (*Logger, error) {
 	initColors()
 
@@ -138,8 +130,7 @@ func NewLogger(args ...interface{}) (*Logger, error) {
 	return &Logger{Module: module, worker: newWorker}, nil
 }
 
-// The log commnand is the function available to user to log message, lvl specifies
-// the degree of the messagethe user wants to log, message is the info user wants to log
+// Log 记录指定级别和消息的日志。
 func (l *Logger) Log(lvl string, message string) {
 	var formatString string = "#%s %s ▶ %.3s %s"
 	info := &Info{
@@ -153,44 +144,44 @@ func (l *Logger) Log(lvl string, message string) {
 	l.worker.Log(lvl, 2, info)
 }
 
-// Fatal is just like func l,Cr.tical logger except that it is followed by exit to program
+// Fatal 记录 CRITICAL 级别日志后退出程序。
 func (l *Logger) Fatal(message string) {
 	l.Log("CRITICAL", message)
 	os.Exit(1)
 }
 
-// Panic is just like func l.Critical except that it is followed by a call to panic
+// Panic 记录 CRITICAL 级别日志后触发 panic。
 func (l *Logger) Panic(message string) {
 	l.Log("CRITICAL", message)
 	panic(message)
 }
 
-// Critical logs a message at a Critical Level
+// Critical 记录 CRITICAL 级别日志。
 func (l *Logger) Critical(message string) {
 	l.Log("CRITICAL", message)
 }
 
-// Error logs a message at Error level
+// Error 记录 ERROR 级别日志。
 func (l *Logger) Error(message string) {
 	l.Log("ERROR", message)
 }
 
-// Warning logs a message at Warning level
+// Warning 记录 WARNING 级别日志。
 func (l *Logger) Warning(message string) {
 	l.Log("WARNING", message)
 }
 
-// Notice logs a message at Notice level
+// Notice 记录 NOTICE 级别日志。
 func (l *Logger) Notice(message string) {
 	l.Log("NOTICE", message)
 }
 
-// Info logs a message at Info level
+// Info 记录 INFO 级别日志。
 func (l *Logger) Info(message string) {
 	l.Log("INFO", message)
 }
 
-// Debug logs a message at Debug level
+// Debug 记录 DEBUG 级别日志。
 func (l *Logger) Debug(message string) {
 	l.Log("DEBUG", message)
 }

@@ -7,6 +7,7 @@ import (
 	"github.com/labstack/gommon/color"
 )
 
+// NewRedis 根据缓存配置创建 Redis 客户端连接。
 func NewRedis(config config.CacheConfig) *redis.Client {
 	nc := redis.NewClient(&redis.Options{
 		Addr:     fmt.Sprintf("%s:%d", config.Host, config.Port),

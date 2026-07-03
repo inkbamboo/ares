@@ -1,3 +1,4 @@
+// Package cls 提供腾讯云 CLS（Cloud Log Service）日志服务的 logrus Hook 实现。
 package cls
 
 import (
@@ -6,20 +7,26 @@ import (
 	clssdk "github.com/tencentcloud/tencentcloud-cls-sdk-go"
 )
 
+// 确保 CLSHook 实现了 logrus.Hook 接口
 var _ logrus.Hook = (*CLSHook)(nil)
 
+// OptionFunc 是 CLSHook 配置选项的函数类型。
 type OptionFunc func(*Option)
 
+// Option 存储 CLSHook 的可配置参数。
 type Option struct {
 	topic string
 }
 
+// SetTopic 设置 CLS 日志主题名称。
 func SetTopic(name string) OptionFunc {
 	return func(o *Option) {
 		o.topic = name
 	}
 }
 
+// NewCLSHook 创建腾讯云 CLS 日志 Hook 实例。
+// 使用异步 Producer 客户端将日志发送到 CLS 服务。
 func NewCLSHook(accessKeyId, accessKeySecret, endpoint, allowLogLevel string, opts ...OptionFunc) *CLSHook {
 	opt := &Option{}
 	if len(opts) > 0 {
@@ -43,12 +50,17 @@ func NewCLSHook(accessKeyId, accessKeySecret, endpoint, allowLogLevel string, op
 	return &CLSHook{opt, p}
 }
 
+// CLSHook 实现 logrus.Hook 接口，将日志发送到腾讯云 CLS。
 type CLSHook struct {
 	opt      *Option
 	producer *clssdk.AsyncProducerClient
 }
 
+// Fire 在日志触发时调用，将日志条目发送到 CLS。
 func (hook *CLSHook) Fire(entry *logrus.Entry) error {
+	if hook.producer == nil {
+		return fmt.Errorf("CLS producer is nil, hook not initialized")
+	}
 	var out = map[string]string{
 		"time":    entry.Time.Format("2006-01-02 15:04:05"),
 		"level":   entry.Level.String(),
@@ -70,10 +82,12 @@ func (hook *CLSHook) Fire(entry *logrus.Entry) error {
 	)
 }
 
+// Levels 返回 Hook 支持的日志级别，此处为所有级别。
 func (hook *CLSHook) Levels() []logrus.Level {
 	return logrus.AllLevels
 }
 
+// Close 关闭 CLS Producer 客户端，timeoutMs 为超时时间（毫秒）。
 func (hook *CLSHook) Close(timeoutMs int64) error {
 	if hook.producer != nil {
 		return hook.producer.Close(timeoutMs)

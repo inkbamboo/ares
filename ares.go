@@ -1,7 +1,6 @@
 package ares
 
 import (
-	"bufio"
 	"fmt"
 	"os"
 	"sync"
@@ -24,6 +23,8 @@ import (
 var ares *Ares
 var once sync.Once
 
+// Default 返回 Ares 的全局单例实例。
+// 通过 sync.Once 保证只初始化一次，是框架的主要入口。
 func Default() *Ares {
 	once.Do(func() {
 		ares = NewAres()
@@ -31,6 +32,8 @@ func Default() *Ares {
 	return ares
 }
 
+// Ares 是框架的核心结构体，管理所有基础设施资源，
+// 包括 ORM 连接、MongoDB 连接、Redis 客户端、内存缓存、Gin 引擎和日志实例。
 type Ares struct {
 	orms        map[string]*store.Orm
 	mongos      map[string]*store.MongoDB
@@ -41,6 +44,9 @@ type Ares struct {
 	logs        map[string]*logrus.Logger
 }
 
+// NewAres 创建一个新的 Ares 实例。
+// 根据配置文件初始化 Gin 引擎、数据库连接、Redis 客户端、日志实例和内存缓存。
+// 在 debug 模式下 Gin 使用 DebugMode，否则使用 ReleaseMode。
 func NewAres() *Ares {
 	cfg := config.GetBaseConfig()
 	a := &Ares{}
@@ -95,16 +101,19 @@ func NewAres() *Ares {
 	}
 	return a
 }
+// GetGin 返回 Gin 引擎实例，用于注册路由和中间件。
 func (a *Ares) GetGin() *gin.Engine {
 	return a.gin
 }
 
-// Run run ripple application
+// Run 启动 Web 服务，使用配置文件中的 Domain 地址监听。
+// 如果配置了 AutoMigrate，会自动执行所有已注册模型的数据库迁移。
 func (a *Ares) Run() {
 	a.RunWith(GetBaseConfig().Domain)
 }
 
-// RunWith run ripple application
+// RunWith 启动 Web 服务，使用指定的 domain 地址监听。
+// 如果配置了 AutoMigrate，会自动执行所有已注册模型的数据库迁移。
 func (a *Ares) RunWith(domain string) {
 	if GetBaseConfig().AutoMigrate {
 		for alias := range a.orms {
@@ -118,6 +127,7 @@ func (a *Ares) RunWith(domain string) {
 	}
 }
 
+// GetOrm 根据别名获取 ORM 实例。如果别名不存在则 panic。
 func (a *Ares) GetOrm(alias string) *store.Orm {
 	if _, ok := a.orms[alias]; !ok {
 		panic(fmt.Errorf("GetOrm: cannot get orm alias '%s'", alias))
@@ -125,36 +135,51 @@ func (a *Ares) GetOrm(alias string) *store.Orm {
 	return a.orms[alias]
 }
 
+// GetRedis 根据别名获取 Redis 客户端实例。如果别名不存在则 panic。
 func (a *Ares) GetRedis(alias string) *redis.Client {
 	if _, ok := a.redis[alias]; !ok {
 		panic(fmt.Errorf("GetRedis: cannot get redis alias '%s'", alias))
 	}
 	return a.redis[alias]
 }
+
+// GetMongo 根据别名获取 MongoDB 连接实例。如果别名不存在则 panic。
 func (a *Ares) GetMongo(alias string) *store.MongoDB {
 	if _, ok := a.mongos[alias]; !ok {
 		panic(fmt.Errorf("GetMongo: cannot get mongo alias '%s'", alias))
 	}
 	return a.mongos[alias]
 }
+
+// GetMemoryCache 返回内存缓存实例（基于 go-cache）。
 func (a *Ares) GetMemoryCache() *cache.Cache {
 	return a.memoryCache
 }
+
+// InitConfigWithPath 使用指定的环境名称和配置路径初始化配置。
+// env 为环境标识（如 local、test、prod），configPath 为配置文件所在目录。
 func InitConfigWithPath(env string, configPath string) {
 	config.InitConfigWithPath(env, configPath)
 }
 
+// GetEnv 返回当前运行环境名称（如 local、test、prod）。
 func GetEnv() string {
 	return config.GetEnv()
 }
 
+// GetConfig 返回 Viper 配置实例，可用于读取自定义配置项。
 func GetConfig() *viper.Viper {
 	return config.GetConfig()
 }
+
+// GetBaseConfig 返回框架基础配置结构体指针。
 func GetBaseConfig() *config.BaseConfig {
 	return config.GetBaseConfig()
 }
 
+// NewLog 根据日志配置创建一个 logrus.Logger 实例。
+// 支持 "sls"（阿里云日志服务）和 "cls"（腾讯云日志服务）两种类型。
+// 可通过 CloseStdout 配置关闭标准输出，仅将日志发送到云端。
 func NewLog(cfg config.LogConfig) *logrus.Logger {
 	if lo.IsEmpty(cfg) {
 		return nil
@@ -178,8 +203,9 @@ func NewLog(cfg config.LogConfig) *logrus.Logger {
 			f, err := os.OpenFile(os.DevNull, os.O_APPEND|os.O_WRONLY, os.ModeAppend)
 			if err != nil {
 				fmt.Println("SLS.CloseStdout Open file err: ", err)
+			} else {
+				std.SetOutput(f)
 			}
-			std.SetOutput(bufio.NewWriter(f))
 		}
 		std.SetFormatter(formatter)
 		std.AddHook(h)
@@ -191,13 +217,13 @@ func NewLog(cfg config.LogConfig) *logrus.Logger {
 			cfg.AllowLogLevel,
 			cls.SetTopic(cfg.Topic),
 		)
-		std.AddHook(h)
 		if cfg.CloseStdout {
 			f, err := os.OpenFile(os.DevNull, os.O_APPEND|os.O_WRONLY, os.ModeAppend)
 			if err != nil {
 				fmt.Println("CLS.CloseStdout Open file err: ", err)
+			} else {
+				std.SetOutput(f)
 			}
-			std.SetOutput(bufio.NewWriter(f))
 		}
 		std.SetFormatter(formatter)
 		std.AddHook(h)
