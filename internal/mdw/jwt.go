@@ -3,7 +3,7 @@ package mdw
 
 import (
 	"fmt"
-	"github.com/golang-jwt/jwt"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 // JwtHandler 是 JWT 认证中间件的占位实现（尚未完成）。

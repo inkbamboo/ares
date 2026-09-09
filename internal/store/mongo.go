@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 	"github.com/inkbamboo/ares/internal/config"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
-	"go.mongodb.org/mongo-driver/mongo/readpref"
+	"go.mongodb.org/mongo-driver/v2/mongo"
+	"go.mongodb.org/mongo-driver/v2/mongo/options"
+	"go.mongodb.org/mongo-driver/v2/mongo/readpref"
 	"time"
 )
 
@@ -26,14 +26,12 @@ func (d *MongoDB) Close() {
 // 连接超时时间为 10 秒，Ping 超时时间为 5 秒。
 func NewMongo(database config.DatabaseConfig, debug bool) *MongoDB {
 	mongodb := &MongoDB{}
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
 	dsn := "mongodb://"
 	if database.Username != "" {
 		dsn += database.Username + ":" + database.Password + "@"
 	}
 	dsn += database.Host + ":" + fmt.Sprintf("%d", database.Port)
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(dsn))
+	client, err := mongo.Connect(options.Client().ApplyURI(dsn))
 	if err != nil {
 		return nil
 	}

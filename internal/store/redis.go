@@ -2,9 +2,10 @@ package store
 
 import (
 	"fmt"
-	"github.com/go-redis/redis/v8"
+
 	"github.com/inkbamboo/ares/internal/config"
 	"github.com/labstack/gommon/color"
+	"github.com/redis/go-redis/v9"
 )
 
 // NewRedis 根据缓存配置创建 Redis 客户端连接。

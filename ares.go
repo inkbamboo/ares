@@ -2,22 +2,21 @@ package ares
 
 import (
 	"fmt"
-	"os"
-	"sync"
-
 	"github.com/duke-git/lancet/v2/validator"
 	"github.com/fatih/color"
 	"github.com/gin-gonic/gin"
-	"github.com/go-redis/redis/v8"
 	"github.com/inkbamboo/ares/internal/config"
 	"github.com/inkbamboo/ares/internal/logger/cls"
 	"github.com/inkbamboo/ares/internal/logger/sls"
 	"github.com/inkbamboo/ares/internal/store"
 	log "github.com/inkbamboo/ares/logger"
 	"github.com/patrickmn/go-cache"
+	"github.com/redis/go-redis/v9"
 	"github.com/samber/lo"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+	"os"
+	"sync"
 )
 
 var ares *Ares
@@ -101,6 +100,7 @@ func NewAres() *Ares {
 	}
 	return a
 }
+
 // GetGin 返回 Gin 引擎实例，用于注册路由和中间件。
 func (a *Ares) GetGin() *gin.Engine {
 	return a.gin
